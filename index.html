@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Moje Mini App</title>
+  <title>Wallet</title>
 
   <!-- Telegram API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,18 +11,52 @@
     body {
       margin: 0;
       padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0b0f1a;
       color: white;
-      text-align: center;
     }
 
+    .card {
+      background: linear-gradient(135deg, #6366f1, #22d3ee);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .label {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-top: 25px;
+    }
+
+    .crypto, .tx {
+      background: #111827;
+      border-radius: 16px;
+      padding: 15px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .green { color: #22c55e; }
+    .red { color: #ef4444; }
+
     button {
-      margin-top: 20px;
-      padding: 15px 25px;
+      width: 100%;
+      margin-top: 25px;
+      padding: 15px;
       font-size: 18px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       background: #22c55e;
       color: black;
     }
@@ -30,18 +64,67 @@
 </head>
 
 <body>
-  <h1>Moje Mini App 🚀</h1>
-  <p>Ahoj z Telegramu</p>
 
-  <button onclick="sendData()">Pošli data botovi</button>
+  <!-- BANK CARD -->
+  <div class="card">
+    <div class="label">Celkový zůstatek</div>
+    <div class="balance">€ 12 450.90</div>
+    <div class="label">**** 4832</div>
+  </div>
+
+  <!-- CRYPTO -->
+  <div class="section">
+    <h3>Crypto portfolio</h3>
+
+    <div class="crypto">
+      <div>Bitcoin</div>
+      <div>0.42 BTC</div>
+    </div>
+
+    <div class="crypto">
+      <div>Ethereum</div>
+      <div>3.8 ETH</div>
+    </div>
+
+    <div class="crypto">
+      <div>Solana</div>
+      <div>120 SOL</div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="section">
+    <h3>Poslední transakce</h3>
+
+    <div class="tx">
+      <div>💸 Platba kartou</div>
+      <div class="red">- €25.00</div>
+    </div>
+
+    <div class="tx">
+      <div>⬆️ Přijatý převod</div>
+      <div class="green">+ €1 200.00</div>
+    </div>
+
+    <div class="tx">
+      <div>₿ Nákup BTC</div>
+      <div class="red">- €500.00</div>
+    </div>
+  </div>
+
+  <button onclick="sendData()">Pokračovat</button>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     function sendData() {
-      tg.sendData("ahoj z miniapp");
+      tg.sendData("user_clicked_continue");
     }
   </script>
+
+</body>
+</html>
+
 </body>
 </html>
