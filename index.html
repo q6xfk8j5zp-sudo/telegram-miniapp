@@ -1,185 +1,191 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MiniApp</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniApp</title>
 
-  <!-- Telegram -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+}
 
-    /* TOP BAR */
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      background: white;
-    }
+header {
+  background: linear-gradient(90deg,#6a6df5,#4cc9f0);
+  color: white;
+  padding: 20px;
+  border-radius: 0 0 20px 20px;
+}
 
-    .menu-btn {
-      font-size: 24px;
-      cursor: pointer;
-    }
+header h1 {
+  margin: 0;
+}
 
-    .profile img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
+.balance {
+  font-size: 28px;
+  font-weight: bold;
+}
 
-    /* SIDE MENU */
-    .side-menu {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 200px;
-      height: 100%;
-      background: white;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      display: none;
-      z-index: 10;
-    }
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 15px;
+}
 
-    .side-menu p {
-      cursor: pointer;
-      margin: 15px 0;
-      font-weight: bold;
-    }
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+}
 
-    /* PAGES */
-    .page {
-      padding: 20px;
-      display: none;
-    }
+.card b {
+  font-size: 20px;
+}
 
-    /* BOTTOM MENU */
-    .bottom-menu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-    }
+.section {
+  padding: 15px;
+}
 
-    .bottom-menu button {
-      background: none;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-    }
+.big-btn {
+  width: 100%;
+  padding: 15px;
+  background: #6a6df5;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+}
 
-    /* PROFILE MENU */
-    .profile-menu {
-      position: absolute;
-      right: 10px;
-      top: 60px;
-      background: white;
-      padding: 10px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      display: none;
-    }
-  </style>
+.bottom {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+.bottom button {
+  background: none;
+  border: none;
+  font-size: 13px;
+}
+
+.page {
+  display: none;
+  padding-bottom: 70px;
+}
+
+.top-right {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.top-right img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+</style>
 </head>
 
 <body>
 
-  <!-- SIDE MENU -->
-  <div id="sideMenu" class="side-menu">
-    <p onclick="go('home')">Domů</p>
-    <p onclick="go('invite')">Pozvat</p>
-    <p onclick="go('wallet')">Peněženka</p>
-  </div>
+<!-- PROFIL -->
+<div class="top-right">
+  <img id="avatar">
+</div>
 
-  <!-- TOP -->
-  <div class="top">
-    <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    <div class="profile" onclick="toggleProfile()">
-      <img id="avatar" />
+<!-- HOME -->
+<div id="home" class="page">
+  <header>
+    <h1>Výdělky</h1>
+    <div>Zůstatek</div>
+    <div class="balance">Kč 9 416</div>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      💰<br>
+      <b>9 416</b><br>
+      Celkový výdělek
+    </div>
+    <div class="card">
+      👥<br>
+      <b>6</b><br>
+      Pozvání
+    </div>
+    <div class="card">
+      📋<br>
+      <b>61</b><br>
+      Úkoly
+    </div>
+    <div class="card">
+      ▶️<br>
+      <b>13</b><br>
+      Videa
     </div>
   </div>
 
-  <!-- PROFILE DROPDOWN -->
-  <div id="profileMenu" class="profile-menu">
-    <p id="username"></p>
-    <button onclick="Telegram.WebApp.close()">Zavřít appku</button>
+  <div class="section">
+    <h3>Pozvěte a vydělávejte</h3>
+    <button class="big-btn" onclick="go('invite')">Pozvat přátele</button>
   </div>
+</div>
 
-  <!-- PAGES -->
-  <div id="home" class="page">
-    <h2>Výdělky</h2>
-    <p>Zůstatek: <b>9 416 Kč</b></p>
-  </div>
+<!-- POZVAT -->
+<div id="invite" class="page">
+  <h2>Pozvat</h2>
+  <p>Pošli odkaz kamarádům</p>
+  <button class="big-btn" onclick="alert('Odkaz zkopírován')">Kopírovat odkaz</button>
+</div>
 
-  <div id="invite" class="page">
-    <h2>Pozvat</h2>
-    <button>Pozvat přátele</button>
-  </div>
+<!-- VIDEO -->
+<div id="video" class="page">
+  <h2>Videa</h2>
+  <p>Tady budou videa</p>
+</div>
 
-  <div id="video" class="page">
-    <h2>Videa</h2>
-    <p>Tady budou videa</p>
-  </div>
+<!-- PENEZENKA -->
+<div id="wallet" class="page">
+  <h2>Peněženka</h2>
+  <p>Výběr peněz</p>
+  <button class="big-btn" onclick="alert('Výběr odeslán')">Vybrat</button>
+</div>
 
-  <div id="wallet" class="page">
-    <h2>Peněženka</h2>
-    <p>Výběr / historie</p>
-  </div>
+<!-- SPODNI MENU -->
+<div class="bottom">
+  <button onclick="go('home')">🏠<br>Domů</button>
+  <button onclick="go('invite')">👥<br>Pozvat</button>
+  <button onclick="go('video')">▶️<br>Video</button>
+  <button onclick="go('wallet')">💰<br>Peněženka</button>
+</div>
 
-  <!-- BOTTOM MENU -->
-  <div class="bottom-menu">
-    <button onclick="go('home')">Domů</button>
-    <button onclick="go('invite')">Pozvat</button>
-    <button onclick="go('video')">Video</button>
-    <button onclick="go('wallet')">Peněženka</button>
-  </div>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+const user = tg.initDataUnsafe.user;
+if (user) {
+  document.getElementById("avatar").src = user.photo_url;
+}
 
-    const user = tg.initDataUnsafe.user;
+function go(page) {
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.getElementById(page).style.display = "block";
+}
 
-    if (user) {
-      document.getElementById("avatar").src = user.photo_url;
-      document.getElementById("username").innerText =
-        user.first_name + " @" + (user.username || "");
-    } else {
-      alert("Otevři tuto aplikaci v Telegramu");
-    }
-
-    function go(page) {
-      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-      document.getElementById(page).style.display = "block";
-      document.getElementById("sideMenu").style.display = "none";
-    }
-
-    function toggleMenu() {
-      const m = document.getElementById("sideMenu");
-      m.style.display = m.style.display === "block" ? "none" : "block";
-    }
-
-    function toggleProfile() {
-      const p = document.getElementById("profileMenu");
-      p.style.display = p.style.display === "block" ? "none" : "block";
-    }
-
-    // default page
-    go("home");
-  </script>
+go("home");
+</script>
 
 </body>
 </html>
