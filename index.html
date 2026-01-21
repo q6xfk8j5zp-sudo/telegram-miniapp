@@ -1,215 +1,189 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <title>Earnings</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MiniApp</title>
+
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f6f7fb;
-      color: #111;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
     }
 
-    .container {
-      padding: 20px;
-      padding-bottom: 90px;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-    }
-
-    /* BALANCE */
-    .balance-box {
-      background: linear-gradient(135deg, #6366f1, #22d3ee);
-      color: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .balance-label {
-      opacity: 0.9;
-      font-size: 14px;
-    }
-
-    .balance-amount {
-      font-size: 34px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    .help-btn {
-      margin-top: 15px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 8px 12px;
-      display: inline-block;
-      font-size: 14px;
-    }
-
-    /* STATS */
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .stat {
-      background: white;
-      border-radius: 16px;
-      padding: 15px;
+    /* TOP BAR */
+    .top {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      padding: 10px;
+      background: white;
     }
 
-    .icon {
-      width: 42px;
-      height: 42px;
+    .menu-btn {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .profile img {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: white;
+      cursor: pointer;
     }
 
-    .green { background: #22c55e; }
-    .blue { background: #3b82f6; }
-    .purple { background: #8b5cf6; }
-    .orange { background: #f59e0b; }
-
-    .stat-value {
-      font-weight: bold;
-      font-size: 18px;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: #666;
-    }
-
-    /* INVITE */
-    .invite {
+    /* SIDE MENU */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 100%;
       background: white;
-      border-radius: 18px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      display: none;
+      z-index: 10;
     }
 
-    .invite button {
-      width: 100%;
-      margin-top: 15px;
-      padding: 14px;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      background: #6366f1;
-      color: white;
+    .side-menu p {
+      cursor: pointer;
+      margin: 15px 0;
+      font-weight: bold;
     }
 
-    /* BOTTOM NAV */
-    .nav {
+    /* PAGES */
+    .page {
+      padding: 20px;
+      display: none;
+    }
+
+    /* BOTTOM MENU */
+    .bottom-menu {
       position: fixed;
       bottom: 0;
       left: 0;
-      right: 0;
+      width: 100%;
       background: white;
       display: flex;
       justify-content: space-around;
-      padding: 12px 0;
-      box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
+      padding: 10px 0;
+      border-top: 1px solid #ddd;
     }
 
-    .nav div {
-      font-size: 12px;
-      color: #666;
-      text-align: center;
+    .bottom-menu button {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
     }
 
-    .nav .active {
-      color: #6366f1;
-      font-weight: bold;
+    /* PROFILE MENU */
+    .profile-menu {
+      position: absolute;
+      right: 10px;
+      top: 60px;
+      background: white;
+      padding: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
 
-    <h1>Výdělky</h1>
-
-    <!-- BALANCE -->
-    <div class="balance-box">
-      <div class="balance-label">Zůstatek</div>
-      <div class="balance-amount">Kč 9 416</div>
-      <div class="help-btn">Jak to funguje?</div>
-    </div>
-
-    <!-- STATS -->
-    <div class="stats">
-      <div class="stat">
-        <div class="icon green">🏦</div>
-        <div>
-          <div class="stat-value">Kč 9 416</div>
-          <div class="stat-label">Celkový výdělek</div>
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="icon blue">👥</div>
-        <div>
-          <div class="stat-value">6</div>
-          <div class="stat-label">Pozvání</div>
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="icon orange">📋</div>
-        <div>
-          <div class="stat-value">61</div>
-          <div class="stat-label">Úkoly</div>
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="icon purple">▶️</div>
-        <div>
-          <div class="stat-value">13</div>
-          <div class="stat-label">Videa</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- INVITE -->
-    <div class="invite">
-      <h3>Pozvěte a vydělávejte</h3>
-      <p>Pozvěte přátele a získejte odměnu za každého nového uživatele.</p>
-      <button>Pozvat přátele</button>
-    </div>
-
+  <!-- SIDE MENU -->
+  <div id="sideMenu" class="side-menu">
+    <p onclick="go('home')">Domů</p>
+    <p onclick="go('invite')">Pozvat</p>
+    <p onclick="go('wallet')">Peněženka</p>
   </div>
 
-  <!-- NAV -->
-  <div class="nav">
-    <div class="active">🏠<br>Domů</div>
-    <div>👥<br>Pozvat</div>
-    <div>▶️<br>Video</div>
-    <div>💰<br>Peněženka</div>
+  <!-- TOP -->
+  <div class="top">
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    <div class="profile" onclick="toggleProfile()">
+      <img id="avatar" />
+    </div>
+  </div>
+
+  <!-- PROFILE DROPDOWN -->
+  <div id="profileMenu" class="profile-menu">
+    <p id="username"></p>
+    <button onclick="Telegram.WebApp.close()">Zavřít appku</button>
+  </div>
+
+  <!-- PAGES -->
+  <div id="home" class="page">
+    <h2>Výdělky</h2>
+    <p>Zůstatek: <b>9 416 Kč</b></p>
+  </div>
+
+  <div id="invite" class="page">
+    <h2>Pozvat</h2>
+    <button>Pozvat přátele</button>
+  </div>
+
+  <div id="video" class="page">
+    <h2>Videa</h2>
+    <p>Tady budou videa</p>
+  </div>
+
+  <div id="wallet" class="page">
+    <h2>Peněženka</h2>
+    <p>Výběr / historie</p>
+  </div>
+
+  <!-- BOTTOM MENU -->
+  <div class="bottom-menu">
+    <button onclick="go('home')">Domů</button>
+    <button onclick="go('invite')">Pozvat</button>
+    <button onclick="go('video')">Video</button>
+    <button onclick="go('wallet')">Peněženka</button>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    const user = tg.initDataUnsafe.user;
+
+    if (user) {
+      document.getElementById("avatar").src = user.photo_url;
+      document.getElementById("username").innerText =
+        user.first_name + " @" + (user.username || "");
+    } else {
+      alert("Otevři tuto aplikaci v Telegramu");
+    }
+
+    function go(page) {
+      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+      document.getElementById(page).style.display = "block";
+      document.getElementById("sideMenu").style.display = "none";
+    }
+
+    function toggleMenu() {
+      const m = document.getElementById("sideMenu");
+      m.style.display = m.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleProfile() {
+      const p = document.getElementById("profileMenu");
+      p.style.display = p.style.display === "block" ? "none" : "block";
+    }
+
+    // default page
+    go("home");
   </script>
+
 </body>
 </html>
+
 
 
 </body>
