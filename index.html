@@ -1,196 +1,233 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MiniApp</title>
+<title>RichTide Mini App</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f6fb;
+*{box-sizing:border-box;font-family:Arial}
+body{
+    margin:0;
+    background:#05060b;
+    color:white;
+}
+.hidden{display:none}
+
+#loader{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
 }
 
-header {
-  background: linear-gradient(90deg,#6a6df5,#4cc9f0);
-  color: white;
-  padding: 20px;
-  border-radius: 0 0 20px 20px;
+.top{
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
+    font-size:14px;
 }
 
-header h1 {
-  margin: 0;
+.balance{
+    font-size:20px;
+    font-weight:bold;
 }
 
-.balance {
-  font-size: 28px;
-  font-weight: bold;
+.card{
+    background:#0b0f1c;
+    border-radius:18px;
+    padding:20px;
+    margin:15px;
+    text-align:center;
+    border:1px solid #1c2140;
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 15px;
+.menu{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    padding:15px;
 }
 
-.card {
-  background: white;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+.menu button,
+.btn{
+    background:#141a3a;
+    border:none;
+    color:white;
+    padding:16px;
+    border-radius:14px;
+    font-size:16px;
 }
 
-.card b {
-  font-size: 20px;
+.btn{
+    width:90%;
+    margin-top:10px;
 }
 
-.section {
-  padding: 15px;
-}
-
-.big-btn {
-  width: 100%;
-  padding: 15px;
-  background: #6a6df5;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-}
-
-.bottom {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: white;
-  display: flex;
-  justify-content: space-around;
-  border-top: 1px solid #ddd;
-  padding: 8px 0;
-}
-
-.bottom button {
-  background: none;
-  border: none;
-  font-size: 13px;
-}
-
-.page {
-  display: none;
-  padding-bottom: 70px;
-}
-
-.top-right {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-}
-
-.top-right img {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+.page{
+    padding-bottom:30px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- PROFIL -->
-<div class="top-right">
-  <img id="avatar">
-</div>
+<div id="loader">🌊 Loading RichTide...</div>
 
-<!-- HOME -->
-<div id="home" class="page">
-  <header>
-    <h1>Výdělky</h1>
-    <div>Zůstatek</div>
-    <div class="balance">Kč 9 416</div>
-  </header>
+<div id="app" class="hidden">
 
-  <div class="cards">
-    <div class="card">
-      💰<br>
-      <b>9 416</b><br>
-      Celkový výdělek
+    <div class="top">
+        <div id="user">@user</div>
+        <div class="balance" id="balance">0 💰</div>
     </div>
-    <div class="card">
-      👥<br>
-      <b>6</b><br>
-      Pozvání
+
+    <!-- HOME -->
+    <div id="home" class="page">
+
+        <div class="card">
+            <h2>💎 RichTide</h2>
+            <p>Earn coins directly in Telegram</p>
+        </div>
+
+        <div class="menu">
+            <button onclick="openPage('earn')">💰 Earn</button>
+            <button onclick="openPage('tasks')">📋 Tasks</button>
+            <button onclick="openPage('invite')">👥 Invite</button>
+            <button onclick="openPage('withdraw')">🏦 Withdraw</button>
+        </div>
+
+        <div class="card">
+            <h3>🔥 Daily Bonus</h3>
+            <button class="btn" onclick="daily()">Claim +50</button>
+        </div>
+
     </div>
-    <div class="card">
-      📋<br>
-      <b>61</b><br>
-      Úkoly
+
+    <!-- EARN -->
+    <div id="earn" class="page hidden">
+        <div class="card">
+            <h2>💰 Earn Coins</h2>
+            <button class="btn" onclick="earn(5)">Watch Ad +5</button>
+            <button class="btn" onclick="earn(10)">Premium Ad +10</button>
+            <button class="btn" onclick="earn(20)">Boost Ad +20</button>
+            <br><br>
+            <button class="btn" onclick="openPage('home')">⬅ Back</button>
+        </div>
     </div>
-    <div class="card">
-      ▶️<br>
-      <b>13</b><br>
-      Videa
+
+    <!-- TASKS -->
+    <div id="tasks" class="page hidden">
+        <div class="card">
+            <h2>📋 Tasks</h2>
+            <button class="btn" onclick="task(20)">Join Telegram +20</button>
+            <button class="btn" onclick="task(30)">Follow Channel +30</button>
+            <button class="btn" onclick="task(50)">Invite 1 friend +50</button>
+            <br><br>
+            <button class="btn" onclick="openPage('home')">⬅ Back</button>
+        </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h3>Pozvěte a vydělávejte</h3>
-    <button class="big-btn" onclick="go('invite')">Pozvat přátele</button>
-  </div>
-</div>
+    <!-- INVITE -->
+    <div id="invite" class="page hidden">
+        <div class="card">
+            <h2>👥 Invite Friends</h2>
+            <p>Your referral link:</p>
+            <p id="refLink"></p>
+            <button class="btn" onclick="copy()">Copy Link</button>
+            <br><br>
+            <button class="btn" onclick="openPage('home')">⬅ Back</button>
+        </div>
+    </div>
 
-<!-- POZVAT -->
-<div id="invite" class="page">
-  <h2>Pozvat</h2>
-  <p>Pošli odkaz kamarádům</p>
-  <button class="big-btn" onclick="alert('Odkaz zkopírován')">Kopírovat odkaz</button>
-</div>
+    <!-- WITHDRAW -->
+    <div id="withdraw" class="page hidden">
+        <div class="card">
+            <h2>🏦 Withdraw</h2>
+            <p>Minimum: 1000 coins</p>
+            <button class="btn" onclick="withdraw()">Request Withdraw</button>
+            <br><br>
+            <button class="btn" onclick="openPage('home')">⬅ Back</button>
+        </div>
+    </div>
 
-<!-- VIDEO -->
-<div id="video" class="page">
-  <h2>Videa</h2>
-  <p>Tady budou videa</p>
-</div>
-
-<!-- PENEZENKA -->
-<div id="wallet" class="page">
-  <h2>Peněženka</h2>
-  <p>Výběr peněz</p>
-  <button class="big-btn" onclick="alert('Výběr odeslán')">Vybrat</button>
-</div>
-
-<!-- SPODNI MENU -->
-<div class="bottom">
-  <button onclick="go('home')">🏠<br>Domů</button>
-  <button onclick="go('invite')">👥<br>Pozvat</button>
-  <button onclick="go('video')">▶️<br>Video</button>
-  <button onclick="go('wallet')">💰<br>Peněženka</button>
 </div>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-const user = tg.initDataUnsafe.user;
-if (user) {
-  document.getElementById("avatar").src = user.photo_url;
+let uid = tg.initDataUnsafe?.user?.id || Math.floor(Math.random()*999999);
+let username = tg.initDataUnsafe?.user?.username || "guest";
+
+document.getElementById("user").innerText = "@" + username;
+
+let balance = Number(localStorage.getItem("balance")) || 0;
+let lastDaily = localStorage.getItem("daily") || 0;
+
+function save(){
+    localStorage.setItem("balance",balance);
 }
 
-function go(page) {
-  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-  document.getElementById(page).style.display = "block";
+function update(){
+    document.getElementById("balance").innerText = balance + " 💰";
+    save();
 }
 
-go("home");
+function openPage(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+}
+
+function earn(v){
+    balance += v;
+    update();
+    alert("You earned +" + v);
+}
+
+function task(v){
+    balance += v;
+    update();
+    alert("Task completed +" + v);
+}
+
+function daily(){
+    let now = Date.now();
+    if(now - lastDaily < 86400000){
+        alert("Already claimed today");
+        return;
+    }
+    lastDaily = now;
+    localStorage.setItem("daily",now);
+    balance += 50;
+    update();
+}
+
+function withdraw(){
+    if(balance < 1000){
+        alert("Not enough coins");
+        return;
+    }
+    alert("Withdraw request sent");
+}
+
+function copy(){
+    navigator.clipboard.writeText(ref);
+    alert("Copied");
+}
+
+let ref = "https://t.me/YOUR_BOT?start=" + uid;
+document.getElementById("refLink").innerText = ref;
+
+setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("app").classList.remove("hidden");
+},1500);
+
+update();
 </script>
-
-</body>
-</html>
-
-
 
 </body>
 </html>
