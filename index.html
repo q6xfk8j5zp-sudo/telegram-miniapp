@@ -1,173 +1,245 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MiniApp</title>
 
+<!-- Telegram WebApp JS -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 * { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  background: #f3f5f9;
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  background:#f3f5f9;
 }
 
-/* LOADING */
-#loading {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  text-align: center;
-  color: #333;
+/* ===== LOADING ===== */
+#loading{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  text-align:center;
+  color:#333;
+}
+#loading .box{
+  background:#fff;
+  width:min(520px, 92vw);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+#loading h2{ margin:0 0 8px; font-size:20px; }
+#loading p{ margin:0; color:#666; }
+#loading pre{
+  margin:14px 0 0;
+  text-align:left;
+  background:#0b1020;
+  color:#d8e1ff;
+  padding:12px;
+  border-radius:12px;
+  overflow:auto;
+  font-size:12px;
+  line-height:1.35;
+  white-space:pre-wrap;
 }
 
-/* APP */
-#app { display: none; }
+/* ===== APP ===== */
+#app{ display:none; }
 
-header {
-  background: linear-gradient(90deg,#6a6df5,#4cc9f0);
-  color: white;
-  padding: 20px;
-  border-radius: 0 0 20px 20px;
-  position: relative;
+header{
+  background:linear-gradient(90deg,#6a6df5,#4cc9f0);
+  color:#fff;
+  padding:20px;
+  border-radius:0 0 20px 20px;
+  position:relative;
 }
 
-.balance {
-  font-size: 28px;
-  font-weight: bold;
+.balance{ font-size:28px; font-weight:800; }
+
+.profile{
+  position:absolute;
+  top:15px;
+  right:15px;
+  cursor:pointer;
+  user-select:none;
 }
 
-.profile {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  cursor: pointer;
+.profile img{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.6);
+  background:rgba(255,255,255,.2);
 }
 
-.profile img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.6);
-  background: rgba(255,255,255,.25);
+.cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:15px;
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 15px;
+.card{
+  background:#fff;
+  border-radius:15px;
+  padding:15px;
+  box-shadow:0 5px 10px rgba(0,0,0,.05);
+  min-height:70px;
 }
 
-.card {
-  background: white;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+.page{ display:none; padding-bottom:90px; }
+
+.inviteBox{
+  margin:15px;
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 5px 10px rgba(0,0,0,.05);
+}
+.inviteBtn{
+  margin-top:12px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  background:#6a6df5;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
 }
 
-.bottom {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: white;
-  display: flex;
-  justify-content: space-around;
-  border-top: 1px solid #ddd;
-  padding: 8px 0;
+.bottom{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#fff;
+  display:flex;
+  justify-content:space-around;
+  border-top:1px solid #ddd;
+  padding:10px 0;
 }
 
-.bottom button {
-  background: none;
-  border: none;
-  font-size: 13px;
-  cursor: pointer;
-  color: #777;
+.bottom button{
+  background:none;
+  border:none;
+  font-size:13px;
+  cursor:pointer;
+  color:#777;
+  width:25%;
 }
 
-.bottom button.active {
-  color: #6a6df5;
-  font-weight: 700;
+.bottom button.active{
+  color:#6a6df5;
+  font-weight:800;
 }
 
-.page { display: none; padding-bottom: 80px; }
-
-/* PROFILE MENU */
-#profileMenu {
-  position: absolute;
-  top: 60px;
-  right: 15px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,.15);
-  display: none;
-  min-width: 240px;
-  overflow: hidden;
-  z-index: 10;
+/* ===== PROFILE MENU ===== */
+#profileMenu{
+  position:absolute;
+  top:60px;
+  right:15px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,.15);
+  display:none;
+  min-width:260px;
+  overflow:hidden;
+  z-index:10;
 }
-
-.profile-line {
-  padding: 12px 14px;
-  font-size: 13px;
-  color: #333;
-  border-bottom: 1px solid #eee;
+.profile-line{
+  padding:12px 14px;
+  font-size:13px;
+  color:#333;
+  border-bottom:1px solid #eee;
 }
-
-#profileMenu button {
-  padding: 12px 14px;
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
+#profileMenu button{
+  padding:12px 14px;
+  background:none;
+  border:none;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOADING (Telegram login) -->
 <div id="loading">
-  <div>
-    <h2>Načítám…</h2>
-    <p>Ověřuji Telegram účet</p>
+  <div class="box">
+    <h2 id="loadTitle">Načítám…</h2>
+    <p id="loadMsg">Ověřuji Telegram účet</p>
+    <pre id="debug" style="display:none"></pre>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <header>
-    <h2>Výdělky</h2>
-    <div>Zůstatek</div>
+    <h2 style="margin:0 0 8px;">Výdělky</h2>
+    <div style="opacity:.9">Zůstatek</div>
     <div class="balance" id="balanceText">Kč 9 416</div>
 
     <div class="profile" onclick="toggleProfile()">
-      <img id="avatar" src="https://i.imgur.com/0y0y0y0.png" alt="profil">
+      <img id="avatar" src="https://i.imgur.com/0y0y0y0.png" alt="profil" />
     </div>
 
     <div id="profileMenu">
       <div class="profile-line">👤 <b id="profileName">-</b></div>
       <div class="profile-line">🆔 TG ID: <span id="profileId">-</span></div>
-      <button onclick="closeApp()">Zavřít miniapp</button>
+      <button onclick="closeProfile()">Zavřít menu</button>
     </div>
   </header>
 
+  <!-- HOME -->
   <div id="home" class="page">
     <div class="cards">
-      <div class="card">💰<br><b id="statEarn">9 416</b><br>Výdělek</div>
-      <div class="card">👥<br><b id="statInv">6</b><br>Pozváno</div>
+      <div class="card">💰<br><b id="statEarn">9 416</b><br>Celkový výdělek</div>
+      <div class="card">👥<br><b id="statInv">6</b><br>Pozvání</div>
       <div class="card">📋<br><b id="statTasks">61</b><br>Úkoly</div>
       <div class="card">▶️<br><b id="statVideos">13</b><br>Videa</div>
     </div>
+
+    <div class="inviteBox">
+      <h3 style="margin:0 0 8px;">Pozvěte a vydělávejte</h3>
+      <div style="color:#666;font-size:14px;">
+        Pozvěte přátele a získejte odměnu za každého nového uživatele.
+      </div>
+      <button class="inviteBtn" onclick="invite()">Pozvat přátele</button>
+    </div>
   </div>
 
-  <div id="invite" class="page"><h2 style="padding:15px;margin:0;">Pozvat</h2></div>
-  <div id="video" class="page"><h2 style="padding:15px;margin:0;">Videa</h2></div>
-  <div id="wallet" class="page"><h2 style="padding:15px;margin:0;">Peněženka</h2></div>
+  <!-- INVITE -->
+  <div id="invite" class="page">
+    <h2 style="padding:15px;margin:0;">Pozvat</h2>
+    <div style="padding:0 15px;color:#555;">
+      Tady bude pozvánkový systém.
+    </div>
+  </div>
 
+  <!-- VIDEO -->
+  <div id="video" class="page">
+    <h2 style="padding:15px;margin:0;">Videa</h2>
+    <div style="padding:0 15px;color:#555;">
+      Tady budou videa.
+    </div>
+  </div>
+
+  <!-- WALLET -->
+  <div id="wallet" class="page">
+    <h2 style="padding:15px;margin:0;">Peněženka</h2>
+    <div style="padding:0 15px;color:#555;">
+      Tady bude peněženka / výběry.
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
   <div class="bottom">
     <button id="b-home" onclick="go('home')">🏠<br>Domů</button>
     <button id="b-invite" onclick="go('invite')">👥<br>Pozvat</button>
@@ -177,11 +249,27 @@ header {
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+/* =============================
+   1) EDGE FUNCTION URL
+   Tvoje funkce se jmenuje hyper-endpoint → proto je tu /hyper-endpoint
+============================= */
+const EDGE_URL = "https://kwrdcaoxecqfctlcjnbj.functions.supabase.co/hyper-endpoint";
 
-// 👇 sem vložíš URL po deployi edge funkce
-const EDGE_URL = "https://kwrdcaoxecqfctlcjnbj.supabase.co/functions/v1/hyper-endpoint";
+/* =============================
+   UI helpers
+============================= */
+function setLoading(title, msg, extra) {
+  document.getElementById("loadTitle").innerText = title;
+  document.getElementById("loadMsg").innerText = msg || "";
+  const dbg = document.getElementById("debug");
+  if (extra) {
+    dbg.style.display = "block";
+    dbg.textContent = extra;
+  } else {
+    dbg.style.display = "none";
+    dbg.textContent = "";
+  }
+}
 
 function go(page) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
@@ -191,50 +279,80 @@ function go(page) {
   const btn = document.getElementById("b-" + page);
   if (btn) btn.classList.add("active");
 
-  document.getElementById("profileMenu").style.display = "none";
+  closeProfile();
 }
 
 function toggleProfile() {
   const m = document.getElementById("profileMenu");
-  m.style.display = m.style.display === "block" ? "none" : "block";
+  m.style.display = (m.style.display === "block") ? "none" : "block";
 }
+function closeProfile(){ document.getElementById("profileMenu").style.display = "none"; }
 
-function closeApp() {
-  tg.close();
-}
+/* =============================
+   Telegram auto-login
+============================= */
+const tg = window.Telegram?.WebApp;
 
 async function telegramAutoLogin() {
-  const initData = tg.initData;
+  if (!tg) {
+    setLoading("Chyba", "Telegram WebApp není dostupný.", "Otevři to přes Telegram (Mini App).");
+    return;
+  }
+
+  tg.expand();
+
+  const initData = tg.initData || "";
+  setLoading("Načítám…", "Ověřuji Telegram účet", "initData length: " + initData.length);
 
   if (!initData) {
-    document.getElementById("loading").innerHTML =
-      "<div><h2>Otevři to v Telegramu</h2><p>Ne v normálním prohlížeči.</p></div>";
+    setLoading("Chyba", "Chybí initData.", "Tohle znamená, že to není otevřené jako Telegram Mini App.");
     return;
   }
 
-  const res = await fetch(EDGE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData })
-  });
+  try {
+    const res = await fetch(EDGE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData })
+    });
 
-  const data = await res.json();
-  if (!data.ok) {
-    document.getElementById("loading").innerHTML =
-      `<div><h2>Login fail</h2><p>${(data.error || "unknown")}</p></div>`;
-    return;
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { ok:false, error:"Non-JSON response", raw:text }; }
+
+    if (!res.ok || !data.ok) {
+      const debug =
+        "HTTP: " + res.status + "\n" +
+        "EDGE_URL: " + EDGE_URL + "\n\n" +
+        "error: " + (data?.error || "unknown") + "\n" +
+        "detail: " + (data?.detail || "-") + "\n\n" +
+        "RAW:\n" + (data?.raw || text);
+
+      setLoading("Login fail", "Pošli mi tenhle text:", debug);
+      return;
+    }
+
+    // ✅ Logged in OK
+    const u = data.user;
+
+    document.getElementById("profileName").innerText =
+      (u.first_name || "") + (u.username ? " @" + u.username : "");
+
+    document.getElementById("profileId").innerText = u.telegram_id;
+
+    if (u.photo_url) document.getElementById("avatar").src = u.photo_url;
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    go("home");
+
+  } catch (e) {
+    setLoading("Network/CORS error", "Nepovedlo se zavolat backend.", String(e));
   }
+}
 
-  const u = data.user;
-  document.getElementById("profileName").innerText =
-    (u.first_name || "") + (u.username ? " @" + u.username : "");
-  document.getElementById("profileId").innerText = u.telegram_id;
-
-  if (u.photo_url) document.getElementById("avatar").src = u.photo_url;
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  go("home");
+function invite(){
+  alert("Pozvánky doděláme jako další krok 🙂");
 }
 
 telegramAutoLogin();
@@ -242,4 +360,3 @@ telegramAutoLogin();
 
 </body>
 </html>
-
