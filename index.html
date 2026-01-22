@@ -3,255 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Výdělky</title>
+<title>MiniApp</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   background: #f3f5f9;
-  color: #111;
 }
 
-/* ===== HEADER ===== */
-.header {
-  padding: 16px;
+/* ===== LOGIN ===== */
+#login {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.header h1 {
-  margin: 0 0 10px;
-  font-size: 22px;
-  font-weight: 700;
+.login-box {
+  background: white;
+  padding: 24px;
+  width: 320px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.1);
 }
 
-/* ===== BALANCE CARD ===== */
-.balance-card {
-  background: linear-gradient(90deg, #6a6df5, #44c8e8);
+.login-box h2 {
+  text-align: center;
+  margin-top: 0;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #6a6df5;
   color: white;
-  border-radius: 16px;
-  padding: 18px;
+  font-size: 15px;
 }
 
-.balance-card small {
-  opacity: 0.9;
+.switch {
+  text-align: center;
+  margin-top: 10px;
+  color: #6a6df5;
+  cursor: pointer;
+}
+
+/* ===== APP ===== */
+#app { display: none; }
+
+header {
+  background: linear-gradient(90deg,#6a6df5,#4cc9f0);
+  color: white;
+  padding: 20px;
+  border-radius: 0 0 20px 20px;
+  position: relative;
 }
 
 .balance {
   font-size: 28px;
-  font-weight: 700;
-  margin: 6px 0;
+  font-weight: bold;
 }
 
-.help-btn {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 12px;
+.profile {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
-/* ===== STATS ===== */
-.stats {
+.profile img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px;
-}
-
-.stat {
-  background: white;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex;
   gap: 10px;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  padding: 15px;
 }
 
-.icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 16px;
-}
-
-.green { background:#3cb371; }
-.blue { background:#4c7cff; }
-.orange { background:#ffa500; }
-.purple { background:#8a5cff; }
-
-.stat b {
-  font-size: 16px;
-}
-
-/* ===== INVITE ===== */
-.invite {
+.card {
   background: white;
-  margin: 0 16px;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.05);
 }
 
-.invite h3 {
-  margin: 0 0 6px;
-}
-
-.invite p {
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: #555;
-}
-
-.invite button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: #6a6df5;
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* ===== PAGES ===== */
-.page {
-  display: none;
-  padding-bottom: 80px;
-}
-
-/* ===== BOTTOM MENU ===== */
 .bottom {
   position: fixed;
   bottom: 0;
   width: 100%;
   background: white;
-  border-top: 1px solid #ddd;
   display: flex;
   justify-content: space-around;
+  border-top: 1px solid #ddd;
   padding: 8px 0;
 }
 
 .bottom button {
   background: none;
   border: none;
-  font-size: 12px;
-  color: #777;
+  font-size: 13px;
 }
 
-.bottom button.active {
-  color: #6a6df5;
-  font-weight: 600;
+.page { display: none; padding-bottom: 80px; }
+
+/* ===== PROFILE MENU ===== */
+#profileMenu {
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,.15);
+  display: none;
+}
+
+#profileMenu button {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  width: 100%;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== HOME ===== -->
-<div id="home" class="page">
-
-  <div class="header">
-    <h1>Výdělky</h1>
-
-    <div class="balance-card">
-      <small>Zůstatek</small>
-      <div class="balance">Kč 9 416</div>
-      <button class="help-btn">Jak to funguje?</button>
-    </div>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="icon green">💰</div>
-      <div>
-        <b>Kč 9 416</b><br>
-        <small>Celkový výdělek</small>
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="icon blue">👥</div>
-      <div>
-        <b>6</b><br>
-        <small>Pozvání</small>
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="icon orange">📋</div>
-      <div>
-        <b>61</b><br>
-        <small>Úkoly</small>
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="icon purple">▶</div>
-      <div>
-        <b>13</b><br>
-        <small>Videa</small>
-      </div>
-    </div>
-  </div>
-
-  <div class="invite">
-    <h3>Pozvěte a vydělávejte</h3>
-    <p>Pozvěte přátele a získejte odměnu za každého nového uživatele.</p>
-    <button onclick="go('invite')">Pozvat přátele</button>
-  </div>
-
-</div>
-
-<!-- ===== INVITE ===== -->
-<div id="invite" class="page">
-  <div class="header"><h1>Pozvat</h1></div>
-  <div class="invite">
-    <p>Tvůj referenční odkaz</p>
-    <button onclick="alert('Odkaz zkopírován')">Kopírovat odkaz</button>
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <h2 id="loginTitle">Přihlášení</h2>
+    <input id="phone" placeholder="Telefon">
+    <input id="password" type="password" placeholder="Heslo">
+    <button onclick="login()">Přihlásit</button>
+    <div class="switch" onclick="toggleMode()">Nemám účet → Registrace</div>
   </div>
 </div>
 
-<!-- ===== VIDEO ===== -->
-<div id="video" class="page">
-  <div class="header"><h1>Videa</h1></div>
-  <div class="invite"><p>Zde budou videa</p></div>
-</div>
+<!-- APP -->
+<div id="app">
+  <header>
+    <h2>Výdělky</h2>
+    <div>Zůstatek</div>
+    <div class="balance">Kč 9 416</div>
 
-<!-- ===== WALLET ===== -->
-<div id="wallet" class="page">
-  <div class="header"><h1>Peněženka</h1></div>
-  <div class="invite">
-    <p>Dostupný zůstatek: Kč 9 416</p>
-    <button onclick="alert('Výběr odeslán')">Vybrat peníze</button>
+    <div class="profile" onclick="toggleProfile()">
+      <img src="https://i.imgur.com/0y0y0y0.png">
+    </div>
+
+    <div id="profileMenu">
+      <button onclick="logout()">Odhlásit</button>
+    </div>
+  </header>
+
+  <div id="home" class="page">
+    <div class="cards">
+      <div class="card">💰<br><b>9 416</b><br>Výdělek</div>
+      <div class="card">👥<br><b>6</b><br>Pozváno</div>
+      <div class="card">📋<br><b>61</b><br>Úkoly</div>
+      <div class="card">▶️<br><b>13</b><br>Videa</div>
+    </div>
   </div>
-</div>
 
-<!-- ===== BOTTOM MENU ===== -->
-<div class="bottom">
-  <button id="b-home" onclick="go('home')">🏠<br>Domů</button>
-  <button id="b-invite" onclick="go('invite')">👥<br>Pozvat</button>
-  <button id="b-video" onclick="go('video')">▶<br>Video</button>
-  <button id="b-wallet" onclick="go('wallet')">💰<br>Peněženka</button>
+  <div id="invite" class="page"><h2>Pozvat</h2></div>
+  <div id="video" class="page"><h2>Videa</h2></div>
+  <div id="wallet" class="page"><h2>Peněženka</h2></div>
+
+  <div class="bottom">
+    <button onclick="go('home')">🏠<br>Domů</button>
+    <button onclick="go('invite')">👥<br>Pozvat</button>
+    <button onclick="go('video')">▶️<br>Video</button>
+    <button onclick="go('wallet')">💰<br>Peněženka</button>
+  </div>
 </div>
 
 <script>
-function go(page) {
-  document.querySelectorAll('.page').forEach(p => p.style.display='none');
-  document.querySelectorAll('.bottom button').forEach(b => b.classList.remove('active'));
-  document.getElementById(page).style.display='block';
-  document.getElementById('b-'+page).classList.add('active');
+const supabaseClient = supabase.createClient(
+  "https://kwrdcaoxecqfctlcjnbj.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3cmRjYW94ZWNxZmN0bGNqbmJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNzYsImV4cCI6MjA4NDYzODM3Nn0.IZdO-tEDsMwBmZ020bvBT_IOOrqgo7LwHKOStHcp6eg"
+);
+
+let registerMode = false;
+
+function toggleMode() {
+  registerMode = !registerMode;
+  document.getElementById("loginTitle").innerText = registerMode ? "Registrace" : "Přihlášení";
 }
-go('home');
+
+async function login() {
+  const phone = phoneInput();
+  const password = passwordInput();
+
+  if (registerMode) {
+    const { error } = await supabaseClient.from("users").insert([{ phone, password }]);
+    if (error) return alert(error.message);
+  }
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select()
+    .eq("phone", phone)
+    .eq("password", password)
+    .single();
+
+  if (error) return alert("Špatné údaje");
+
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  go("home");
+}
+
+function phoneInput() { return document.getElementById("phone").value; }
+function passwordInput() { return document.getElementById("password").value; }
+
+function go(page) {
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.getElementById(page).style.display = "block";
+}
+
+function toggleProfile() {
+  const m = document.getElementById("profileMenu");
+  m.style.display = m.style.display === "block" ? "none" : "block";
+}
+
+function logout() {
+  location.reload();
+}
 </script>
 
 </body>
 </html>
-
