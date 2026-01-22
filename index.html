@@ -1,233 +1,257 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RichTide Mini App</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Výdělky</title>
 
 <style>
-*{box-sizing:border-box;font-family:Arial}
-body{
-    margin:0;
-    background:#05060b;
-    color:white;
-}
-.hidden{display:none}
+* { box-sizing: border-box; }
 
-#loader{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:24px;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: #f3f5f9;
+  color: #111;
 }
 
-.top{
-    display:flex;
-    justify-content:space-between;
-    padding:15px;
-    font-size:14px;
+/* ===== HEADER ===== */
+.header {
+  padding: 16px;
 }
 
-.balance{
-    font-size:20px;
-    font-weight:bold;
+.header h1 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
 }
 
-.card{
-    background:#0b0f1c;
-    border-radius:18px;
-    padding:20px;
-    margin:15px;
-    text-align:center;
-    border:1px solid #1c2140;
+/* ===== BALANCE CARD ===== */
+.balance-card {
+  background: linear-gradient(90deg, #6a6df5, #44c8e8);
+  color: white;
+  border-radius: 16px;
+  padding: 18px;
 }
 
-.menu{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:14px;
-    padding:15px;
+.balance-card small {
+  opacity: 0.9;
 }
 
-.menu button,
-.btn{
-    background:#141a3a;
-    border:none;
-    color:white;
-    padding:16px;
-    border-radius:14px;
-    font-size:16px;
+.balance {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 6px 0;
 }
 
-.btn{
-    width:90%;
-    margin-top:10px;
+.help-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
 }
 
-.page{
-    padding-bottom:30px;
+/* ===== STATS ===== */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.stat {
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+}
+
+.green { background:#3cb371; }
+.blue { background:#4c7cff; }
+.orange { background:#ffa500; }
+.purple { background:#8a5cff; }
+
+.stat b {
+  font-size: 16px;
+}
+
+/* ===== INVITE ===== */
+.invite {
+  background: white;
+  margin: 0 16px;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.invite h3 {
+  margin: 0 0 6px;
+}
+
+.invite p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.invite button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #6a6df5;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ===== PAGES ===== */
+.page {
+  display: none;
+  padding-bottom: 80px;
+}
+
+/* ===== BOTTOM MENU ===== */
+.bottom {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+}
+
+.bottom button {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #777;
+}
+
+.bottom button.active {
+  color: #6a6df5;
+  font-weight: 600;
 }
 </style>
 </head>
 
 <body>
 
-<div id="loader">🌊 Loading RichTide...</div>
+<!-- ===== HOME ===== -->
+<div id="home" class="page">
 
-<div id="app" class="hidden">
+  <div class="header">
+    <h1>Výdělky</h1>
 
-    <div class="top">
-        <div id="user">@user</div>
-        <div class="balance" id="balance">0 💰</div>
+    <div class="balance-card">
+      <small>Zůstatek</small>
+      <div class="balance">Kč 9 416</div>
+      <button class="help-btn">Jak to funguje?</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="icon green">💰</div>
+      <div>
+        <b>Kč 9 416</b><br>
+        <small>Celkový výdělek</small>
+      </div>
     </div>
 
-    <!-- HOME -->
-    <div id="home" class="page">
-
-        <div class="card">
-            <h2>💎 RichTide</h2>
-            <p>Earn coins directly in Telegram</p>
-        </div>
-
-        <div class="menu">
-            <button onclick="openPage('earn')">💰 Earn</button>
-            <button onclick="openPage('tasks')">📋 Tasks</button>
-            <button onclick="openPage('invite')">👥 Invite</button>
-            <button onclick="openPage('withdraw')">🏦 Withdraw</button>
-        </div>
-
-        <div class="card">
-            <h3>🔥 Daily Bonus</h3>
-            <button class="btn" onclick="daily()">Claim +50</button>
-        </div>
-
+    <div class="stat">
+      <div class="icon blue">👥</div>
+      <div>
+        <b>6</b><br>
+        <small>Pozvání</small>
+      </div>
     </div>
 
-    <!-- EARN -->
-    <div id="earn" class="page hidden">
-        <div class="card">
-            <h2>💰 Earn Coins</h2>
-            <button class="btn" onclick="earn(5)">Watch Ad +5</button>
-            <button class="btn" onclick="earn(10)">Premium Ad +10</button>
-            <button class="btn" onclick="earn(20)">Boost Ad +20</button>
-            <br><br>
-            <button class="btn" onclick="openPage('home')">⬅ Back</button>
-        </div>
+    <div class="stat">
+      <div class="icon orange">📋</div>
+      <div>
+        <b>61</b><br>
+        <small>Úkoly</small>
+      </div>
     </div>
 
-    <!-- TASKS -->
-    <div id="tasks" class="page hidden">
-        <div class="card">
-            <h2>📋 Tasks</h2>
-            <button class="btn" onclick="task(20)">Join Telegram +20</button>
-            <button class="btn" onclick="task(30)">Follow Channel +30</button>
-            <button class="btn" onclick="task(50)">Invite 1 friend +50</button>
-            <br><br>
-            <button class="btn" onclick="openPage('home')">⬅ Back</button>
-        </div>
+    <div class="stat">
+      <div class="icon purple">▶</div>
+      <div>
+        <b>13</b><br>
+        <small>Videa</small>
+      </div>
     </div>
+  </div>
 
-    <!-- INVITE -->
-    <div id="invite" class="page hidden">
-        <div class="card">
-            <h2>👥 Invite Friends</h2>
-            <p>Your referral link:</p>
-            <p id="refLink"></p>
-            <button class="btn" onclick="copy()">Copy Link</button>
-            <br><br>
-            <button class="btn" onclick="openPage('home')">⬅ Back</button>
-        </div>
-    </div>
-
-    <!-- WITHDRAW -->
-    <div id="withdraw" class="page hidden">
-        <div class="card">
-            <h2>🏦 Withdraw</h2>
-            <p>Minimum: 1000 coins</p>
-            <button class="btn" onclick="withdraw()">Request Withdraw</button>
-            <br><br>
-            <button class="btn" onclick="openPage('home')">⬅ Back</button>
-        </div>
-    </div>
+  <div class="invite">
+    <h3>Pozvěte a vydělávejte</h3>
+    <p>Pozvěte přátele a získejte odměnu za každého nového uživatele.</p>
+    <button onclick="go('invite')">Pozvat přátele</button>
+  </div>
 
 </div>
 
+<!-- ===== INVITE ===== -->
+<div id="invite" class="page">
+  <div class="header"><h1>Pozvat</h1></div>
+  <div class="invite">
+    <p>Tvůj referenční odkaz</p>
+    <button onclick="alert('Odkaz zkopírován')">Kopírovat odkaz</button>
+  </div>
+</div>
+
+<!-- ===== VIDEO ===== -->
+<div id="video" class="page">
+  <div class="header"><h1>Videa</h1></div>
+  <div class="invite"><p>Zde budou videa</p></div>
+</div>
+
+<!-- ===== WALLET ===== -->
+<div id="wallet" class="page">
+  <div class="header"><h1>Peněženka</h1></div>
+  <div class="invite">
+    <p>Dostupný zůstatek: Kč 9 416</p>
+    <button onclick="alert('Výběr odeslán')">Vybrat peníze</button>
+  </div>
+</div>
+
+<!-- ===== BOTTOM MENU ===== -->
+<div class="bottom">
+  <button id="b-home" onclick="go('home')">🏠<br>Domů</button>
+  <button id="b-invite" onclick="go('invite')">👥<br>Pozvat</button>
+  <button id="b-video" onclick="go('video')">▶<br>Video</button>
+  <button id="b-wallet" onclick="go('wallet')">💰<br>Peněženka</button>
+</div>
+
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-let uid = tg.initDataUnsafe?.user?.id || Math.floor(Math.random()*999999);
-let username = tg.initDataUnsafe?.user?.username || "guest";
-
-document.getElementById("user").innerText = "@" + username;
-
-let balance = Number(localStorage.getItem("balance")) || 0;
-let lastDaily = localStorage.getItem("daily") || 0;
-
-function save(){
-    localStorage.setItem("balance",balance);
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.style.display='none');
+  document.querySelectorAll('.bottom button').forEach(b => b.classList.remove('active'));
+  document.getElementById(page).style.display='block';
+  document.getElementById('b-'+page).classList.add('active');
 }
-
-function update(){
-    document.getElementById("balance").innerText = balance + " 💰";
-    save();
-}
-
-function openPage(id){
-    document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
-    document.getElementById(id).classList.remove("hidden");
-}
-
-function earn(v){
-    balance += v;
-    update();
-    alert("You earned +" + v);
-}
-
-function task(v){
-    balance += v;
-    update();
-    alert("Task completed +" + v);
-}
-
-function daily(){
-    let now = Date.now();
-    if(now - lastDaily < 86400000){
-        alert("Already claimed today");
-        return;
-    }
-    lastDaily = now;
-    localStorage.setItem("daily",now);
-    balance += 50;
-    update();
-}
-
-function withdraw(){
-    if(balance < 1000){
-        alert("Not enough coins");
-        return;
-    }
-    alert("Withdraw request sent");
-}
-
-function copy(){
-    navigator.clipboard.writeText(ref);
-    alert("Copied");
-}
-
-let ref = "https://t.me/YOUR_BOT?start=" + uid;
-document.getElementById("refLink").innerText = ref;
-
-setTimeout(()=>{
-    document.getElementById("loader").style.display="none";
-    document.getElementById("app").classList.remove("hidden");
-},1500);
-
-update();
+go('home');
 </script>
 
 </body>
 </html>
+
