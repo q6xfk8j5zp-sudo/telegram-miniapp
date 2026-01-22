@@ -52,6 +52,7 @@ body {
   background: #6a6df5;
   color: white;
   font-size: 15px;
+  cursor: pointer;
 }
 
 .switch {
@@ -59,6 +60,14 @@ body {
   margin-top: 10px;
   color: #6a6df5;
   cursor: pointer;
+  user-select: none;
+}
+
+.hint {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #777;
 }
 
 /* ===== APP ===== */
@@ -81,12 +90,15 @@ header {
   position: absolute;
   top: 15px;
   right: 15px;
+  cursor: pointer;
 }
 
 .profile img {
   width: 36px;
   height: 36px;
   border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.6);
+  background: rgba(255,255,255,.25);
 }
 
 .cards {
@@ -118,6 +130,13 @@ header {
   background: none;
   border: none;
   font-size: 13px;
+  cursor: pointer;
+  color: #777;
+}
+
+.bottom button.active {
+  color: #6a6df5;
+  font-weight: 700;
 }
 
 .page { display: none; padding-bottom: 80px; }
@@ -131,13 +150,25 @@ header {
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0,0,0,.15);
   display: none;
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.profile-line {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #333;
+  border-bottom: 1px solid #eee;
 }
 
 #profileMenu button {
-  padding: 12px 20px;
+  padding: 12px 14px;
   background: none;
   border: none;
   width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -148,10 +179,17 @@ header {
 <div id="login">
   <div class="login-box">
     <h2 id="loginTitle">Přihlášení</h2>
-    <input id="phone" placeholder="Telefon">
+    <input id="phone" placeholder="Telefon (např. 777123456)">
     <input id="password" type="password" placeholder="Heslo">
-    <button onclick="login()">Přihlásit</button>
-    <div class="switch" onclick="toggleMode()">Nemám účet → Registrace</div>
+
+    <!-- ✅ jedno tlačítko, co dělá login/registraci podle módu -->
+    <button id="submitBtn" onclick="submitAuth()">Přihlásit</button>
+
+    <div id="switchText" class="switch" onclick="toggleMode()">
+      Nemám účet → Registrace
+    </div>
+
+    <div class="hint">Tip: Bez vyplnění tě to nepustí ✅</div>
   </div>
 </div>
 
@@ -163,10 +201,11 @@ header {
     <div class="balance">Kč 9 416</div>
 
     <div class="profile" onclick="toggleProfile()">
-      <img src="https://i.imgur.com/0y0y0y0.png">
+      <img id="avatar" src="https://i.imgur.com/0y0y0y0.png" alt="profil">
     </div>
 
     <div id="profileMenu">
+      <div class="profile-line">Přihlášen: <b id="profilePhone">-</b></div>
       <button onclick="logout()">Odhlásit</button>
     </div>
   </header>
@@ -180,15 +219,15 @@ header {
     </div>
   </div>
 
-  <div id="invite" class="page"><h2>Pozvat</h2></div>
-  <div id="video" class="page"><h2>Videa</h2></div>
-  <div id="wallet" class="page"><h2>Peněženka</h2></div>
+  <div id="invite" class="page"><h2 style="padding:15px;margin:0;">Pozvat</h2></div>
+  <div id="video" class="page"><h2 style="padding:15px;margin:0;">Videa</h2></div>
+  <div id="wallet" class="page"><h2 style="padding:15px;margin:0;">Peněženka</h2></div>
 
   <div class="bottom">
-    <button onclick="go('home')">🏠<br>Domů</button>
-    <button onclick="go('invite')">👥<br>Pozvat</button>
-    <button onclick="go('video')">▶️<br>Video</button>
-    <button onclick="go('wallet')">💰<br>Peněženka</button>
+    <button id="b-home" onclick="go('home')">🏠<br>Domů</button>
+    <button id="b-invite" onclick="go('invite')">👥<br>Pozvat</button>
+    <button id="b-video" onclick="go('video')">▶️<br>Video</button>
+    <button id="b-wallet" onclick="go('wallet')">💰<br>Peněženka</button>
   </div>
 </div>
 
@@ -198,42 +237,102 @@ const supabaseClient = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3cmRjYW94ZWNxZmN0bGNqbmJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNzYsImV4cCI6MjA4NDYzODM3Nn0.IZdO-tEDsMwBmZ020bvBT_IOOrqgo7LwHKOStHcp6eg"
 );
 
-let registerMode = false;
+let mode = "login"; // "login" | "register"
 
-function toggleMode() {
-  registerMode = !registerMode;
-  document.getElementById("loginTitle").innerText = registerMode ? "Registrace" : "Přihlášení";
+function setMode(newMode) {
+  mode = newMode;
+
+  document.getElementById("loginTitle").innerText =
+    mode === "login" ? "Přihlášení" : "Registrace";
+
+  document.getElementById("submitBtn").innerText =
+    mode === "login" ? "Přihlásit" : "Zaregistrovat";
+
+  document.getElementById("switchText").innerText =
+    mode === "login" ? "Nemám účet → Registrace" : "Mám účet → Přihlášení";
 }
 
-async function login() {
+function toggleMode() {
+  setMode(mode === "login" ? "register" : "login");
+}
+
+function phoneInput() {
+  return (document.getElementById("phone").value || "").trim();
+}
+function passwordInput() {
+  return (document.getElementById("password").value || "").trim();
+}
+
+/* ✅ hlavní auth funkce */
+async function submitAuth() {
   const phone = phoneInput();
   const password = passwordInput();
 
-  if (registerMode) {
-    const { error } = await supabaseClient.from("users").insert([{ phone, password }]);
-    if (error) return alert(error.message);
+  // ✅ STOP: bez údajů nikdy nic nedělat
+  if (!phone || !password) {
+    alert("Zadej telefon i heslo.");
+    return;
   }
 
+  // jednoduchá kontrola telefonu (jen čísla, min 9 znaků)
+  if (!/^[0-9+ ]{9,}$/.test(phone)) {
+    alert("Telefon vypadá špatně. Zadej jen čísla (např. 777123456).");
+    return;
+  }
+
+  // pokud registrace -> INSERT
+  if (mode === "register") {
+    const { error: insErr } = await supabaseClient
+      .from("users")
+      .insert([{ phone, password }]);
+
+    if (insErr) {
+      alert(insErr.message);
+      return;
+    }
+  }
+
+  // login -> SELECT (jen pokud sedí)
   const { data, error } = await supabaseClient
     .from("users")
-    .select()
+    .select("id, phone")
     .eq("phone", phone)
     .eq("password", password)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
-  if (error) return alert("Špatné údaje");
+  // ✅ musí být data
+  if (error || !data) {
+    alert("Špatné údaje.");
+    return;
+  }
 
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  go("home");
+  // ✅ uložíme session (jednoduše)
+  localStorage.setItem("miniapp_user_phone", data.phone);
+  localStorage.setItem("miniapp_logged_in", "1");
+
+  showApp();
 }
 
-function phoneInput() { return document.getElementById("phone").value; }
-function passwordInput() { return document.getElementById("password").value; }
+/* ===== UI HELPERS ===== */
+function showApp() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("profilePhone").innerText =
+    localStorage.getItem("miniapp_user_phone") || "-";
+  go("home");
+}
 
 function go(page) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
   document.getElementById(page).style.display = "block";
+
+  document.querySelectorAll(".bottom button").forEach(b => b.classList.remove("active"));
+  const btn = document.getElementById("b-" + page);
+  if (btn) btn.classList.add("active");
+
+  // zavřít profil menu při přepnutí
+  document.getElementById("profileMenu").style.display = "none";
 }
 
 function toggleProfile() {
@@ -242,8 +341,17 @@ function toggleProfile() {
 }
 
 function logout() {
+  localStorage.removeItem("miniapp_logged_in");
+  localStorage.removeItem("miniapp_user_phone");
   location.reload();
 }
+
+/* ✅ auto-login po refreshi */
+(function boot() {
+  setMode("login");
+  const logged = localStorage.getItem("miniapp_logged_in") === "1";
+  if (logged) showApp();
+})();
 </script>
 
 </body>
