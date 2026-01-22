@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MiniApp</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -15,62 +15,18 @@ body {
   background: #f3f5f9;
 }
 
-/* ===== LOGIN ===== */
-#login {
+/* LOADING */
+#loading {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.login-box {
-  background: white;
   padding: 24px;
-  width: 320px;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.1);
-}
-
-.login-box h2 {
   text-align: center;
-  margin-top: 0;
+  color: #333;
 }
 
-.login-box input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-}
-
-.login-box button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  background: #6a6df5;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.switch {
-  text-align: center;
-  margin-top: 10px;
-  color: #6a6df5;
-  cursor: pointer;
-  user-select: none;
-}
-
-.hint {
-  margin-top: 10px;
-  text-align: center;
-  font-size: 12px;
-  color: #777;
-}
-
-/* ===== APP ===== */
+/* APP */
 #app { display: none; }
 
 header {
@@ -141,7 +97,7 @@ header {
 
 .page { display: none; padding-bottom: 80px; }
 
-/* ===== PROFILE MENU ===== */
+/* PROFILE MENU */
 #profileMenu {
   position: absolute;
   top: 60px;
@@ -150,7 +106,7 @@ header {
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0,0,0,.15);
   display: none;
-  min-width: 180px;
+  min-width: 240px;
   overflow: hidden;
   z-index: 10;
 }
@@ -175,47 +131,36 @@ header {
 
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-  <div class="login-box">
-    <h2 id="loginTitle">Přihlášení</h2>
-    <input id="phone" placeholder="Telefon (např. 777123456)">
-    <input id="password" type="password" placeholder="Heslo">
-
-    <!-- ✅ jedno tlačítko, co dělá login/registraci podle módu -->
-    <button id="submitBtn" onclick="submitAuth()">Přihlásit</button>
-
-    <div id="switchText" class="switch" onclick="toggleMode()">
-      Nemám účet → Registrace
-    </div>
-
-    <div class="hint">Tip: Bez vyplnění tě to nepustí ✅</div>
+<div id="loading">
+  <div>
+    <h2>Načítám…</h2>
+    <p>Ověřuji Telegram účet</p>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header>
     <h2>Výdělky</h2>
     <div>Zůstatek</div>
-    <div class="balance">Kč 9 416</div>
+    <div class="balance" id="balanceText">Kč 9 416</div>
 
     <div class="profile" onclick="toggleProfile()">
       <img id="avatar" src="https://i.imgur.com/0y0y0y0.png" alt="profil">
     </div>
 
     <div id="profileMenu">
-      <div class="profile-line">Přihlášen: <b id="profilePhone">-</b></div>
-      <button onclick="logout()">Odhlásit</button>
+      <div class="profile-line">👤 <b id="profileName">-</b></div>
+      <div class="profile-line">🆔 TG ID: <span id="profileId">-</span></div>
+      <button onclick="closeApp()">Zavřít miniapp</button>
     </div>
   </header>
 
   <div id="home" class="page">
     <div class="cards">
-      <div class="card">💰<br><b>9 416</b><br>Výdělek</div>
-      <div class="card">👥<br><b>6</b><br>Pozváno</div>
-      <div class="card">📋<br><b>61</b><br>Úkoly</div>
-      <div class="card">▶️<br><b>13</b><br>Videa</div>
+      <div class="card">💰<br><b id="statEarn">9 416</b><br>Výdělek</div>
+      <div class="card">👥<br><b id="statInv">6</b><br>Pozváno</div>
+      <div class="card">📋<br><b id="statTasks">61</b><br>Úkoly</div>
+      <div class="card">▶️<br><b id="statVideos">13</b><br>Videa</div>
     </div>
   </div>
 
@@ -232,96 +177,11 @@ header {
 </div>
 
 <script>
-const supabaseClient = supabase.createClient(
-  "https://kwrdcaoxecqfctlcjnbj.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3cmRjYW94ZWNxZmN0bGNqbmJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNzYsImV4cCI6MjA4NDYzODM3Nn0.IZdO-tEDsMwBmZ020bvBT_IOOrqgo7LwHKOStHcp6eg"
-);
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-let mode = "login"; // "login" | "register"
-
-function setMode(newMode) {
-  mode = newMode;
-
-  document.getElementById("loginTitle").innerText =
-    mode === "login" ? "Přihlášení" : "Registrace";
-
-  document.getElementById("submitBtn").innerText =
-    mode === "login" ? "Přihlásit" : "Zaregistrovat";
-
-  document.getElementById("switchText").innerText =
-    mode === "login" ? "Nemám účet → Registrace" : "Mám účet → Přihlášení";
-}
-
-function toggleMode() {
-  setMode(mode === "login" ? "register" : "login");
-}
-
-function phoneInput() {
-  return (document.getElementById("phone").value || "").trim();
-}
-function passwordInput() {
-  return (document.getElementById("password").value || "").trim();
-}
-
-/* ✅ hlavní auth funkce */
-async function submitAuth() {
-  const phone = phoneInput();
-  const password = passwordInput();
-
-  // ✅ STOP: bez údajů nikdy nic nedělat
-  if (!phone || !password) {
-    alert("Zadej telefon i heslo.");
-    return;
-  }
-
-  // jednoduchá kontrola telefonu (jen čísla, min 9 znaků)
-  if (!/^[0-9+ ]{9,}$/.test(phone)) {
-    alert("Telefon vypadá špatně. Zadej jen čísla (např. 777123456).");
-    return;
-  }
-
-  // pokud registrace -> INSERT
-  if (mode === "register") {
-    const { error: insErr } = await supabaseClient
-      .from("users")
-      .insert([{ phone, password }]);
-
-    if (insErr) {
-      alert(insErr.message);
-      return;
-    }
-  }
-
-  // login -> SELECT (jen pokud sedí)
-  const { data, error } = await supabaseClient
-    .from("users")
-    .select("id, phone")
-    .eq("phone", phone)
-    .eq("password", password)
-    .limit(1)
-    .maybeSingle();
-
-  // ✅ musí být data
-  if (error || !data) {
-    alert("Špatné údaje.");
-    return;
-  }
-
-  // ✅ uložíme session (jednoduše)
-  localStorage.setItem("miniapp_user_phone", data.phone);
-  localStorage.setItem("miniapp_logged_in", "1");
-
-  showApp();
-}
-
-/* ===== UI HELPERS ===== */
-function showApp() {
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  document.getElementById("profilePhone").innerText =
-    localStorage.getItem("miniapp_user_phone") || "-";
-  go("home");
-}
+// 👇 sem vložíš URL po deployi edge funkce
+const EDGE_URL = "PASTE_EDGE_FUNCTION_URL_HERE";
 
 function go(page) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
@@ -331,7 +191,6 @@ function go(page) {
   const btn = document.getElementById("b-" + page);
   if (btn) btn.classList.add("active");
 
-  // zavřít profil menu při přepnutí
   document.getElementById("profileMenu").style.display = "none";
 }
 
@@ -340,19 +199,47 @@ function toggleProfile() {
   m.style.display = m.style.display === "block" ? "none" : "block";
 }
 
-function logout() {
-  localStorage.removeItem("miniapp_logged_in");
-  localStorage.removeItem("miniapp_user_phone");
-  location.reload();
+function closeApp() {
+  tg.close();
 }
 
-/* ✅ auto-login po refreshi */
-(function boot() {
-  setMode("login");
-  const logged = localStorage.getItem("miniapp_logged_in") === "1";
-  if (logged) showApp();
-})();
+async function telegramAutoLogin() {
+  const initData = tg.initData;
+
+  if (!initData) {
+    document.getElementById("loading").innerHTML =
+      "<div><h2>Otevři to v Telegramu</h2><p>Ne v normálním prohlížeči.</p></div>";
+    return;
+  }
+
+  const res = await fetch(EDGE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData })
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    document.getElementById("loading").innerHTML =
+      `<div><h2>Login fail</h2><p>${(data.error || "unknown")}</p></div>`;
+    return;
+  }
+
+  const u = data.user;
+  document.getElementById("profileName").innerText =
+    (u.first_name || "") + (u.username ? " @" + u.username : "");
+  document.getElementById("profileId").innerText = u.telegram_id;
+
+  if (u.photo_url) document.getElementById("avatar").src = u.photo_url;
+
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  go("home");
+}
+
+telegramAutoLogin();
 </script>
 
 </body>
 </html>
+
