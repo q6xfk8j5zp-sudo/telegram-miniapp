@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MiniApp</title>
 
-<!-- Telegram WebApp JS -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -16,10 +16,9 @@ body{
   background:#f3f5f9;
 }
 
-/* ===== LOADING ===== */
 #loading{
   height:100vh;
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
   padding:24px;
@@ -35,20 +34,7 @@ body{
 }
 #loading h2{ margin:0 0 8px; font-size:20px; }
 #loading p{ margin:0; color:#666; }
-#loading pre{
-  margin:14px 0 0;
-  text-align:left;
-  background:#0b1020;
-  color:#d8e1ff;
-  padding:12px;
-  border-radius:12px;
-  overflow:auto;
-  font-size:12px;
-  line-height:1.35;
-  white-space:pre-wrap;
-}
 
-/* ===== APP ===== */
 #app{ display:none; }
 
 header{
@@ -92,17 +78,20 @@ header{
   min-height:70px;
 }
 
-.page{ display:none; padding-bottom:90px; }
+.card small{ color:#777; }
 
-.inviteBox{
+.page{ display:none; padding-bottom:100px; }
+
+.box{
   margin:15px;
   background:#fff;
   border-radius:18px;
   padding:16px;
   box-shadow:0 5px 10px rgba(0,0,0,.05);
 }
-.inviteBtn{
-  margin-top:12px;
+
+.btn{
+  margin-top:10px;
   width:100%;
   border:none;
   border-radius:12px;
@@ -111,6 +100,10 @@ header{
   color:#fff;
   font-size:15px;
   cursor:pointer;
+}
+.btn.secondary{
+  background:#eef1ff;
+  color:#3438d4;
 }
 
 .bottom{
@@ -138,7 +131,6 @@ header{
   font-weight:800;
 }
 
-/* ===== PROFILE MENU ===== */
 #profileMenu{
   position:absolute;
   top:60px;
@@ -165,26 +157,34 @@ header{
   text-align:left;
   cursor:pointer;
 }
+.muted{ color:#666; font-size:14px; }
+pre{
+  white-space:pre-wrap;
+  background:#0b1020;
+  color:#d8e1ff;
+  padding:12px;
+  border-radius:12px;
+  overflow:auto;
+  font-size:12px;
+  line-height:1.35;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOADING (Telegram login) -->
 <div id="loading">
   <div class="box">
     <h2 id="loadTitle">Načítám…</h2>
     <p id="loadMsg">Ověřuji Telegram účet</p>
-    <pre id="debug" style="display:none"></pre>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header>
     <h2 style="margin:0 0 8px;">Výdělky</h2>
     <div style="opacity:.9">Zůstatek</div>
-    <div class="balance" id="balanceText">Kč 9 416</div>
+    <div class="balance" id="balanceText">Kč 0</div>
 
     <div class="profile" onclick="toggleProfile()">
       <img id="avatar" src="https://i.imgur.com/0y0y0y0.png" alt="profil" />
@@ -193,6 +193,7 @@ header{
     <div id="profileMenu">
       <div class="profile-line">👤 <b id="profileName">-</b></div>
       <div class="profile-line">🆔 TG ID: <span id="profileId">-</span></div>
+      <div class="profile-line muted">Data se ukládají do Supabase</div>
       <button onclick="closeProfile()">Zavřít menu</button>
     </div>
   </header>
@@ -200,42 +201,46 @@ header{
   <!-- HOME -->
   <div id="home" class="page">
     <div class="cards">
-      <div class="card">💰<br><b id="statEarn">9 416</b><br>Celkový výdělek</div>
-      <div class="card">👥<br><b id="statInv">6</b><br>Pozvání</div>
-      <div class="card">📋<br><b id="statTasks">61</b><br>Úkoly</div>
-      <div class="card">▶️<br><b id="statVideos">13</b><br>Videa</div>
+      <div class="card">💰<br><b id="statEarn">0</b><br><small>Celkový výdělek</small></div>
+      <div class="card">👥<br><b id="statInv">0</b><br><small>Pozváno</small></div>
+      <div class="card">📋<br><b id="statTasks">0</b><br><small>Úkoly</small></div>
+      <div class="card">▶️<br><b id="statVideos">0</b><br><small>Videa</small></div>
     </div>
 
-    <div class="inviteBox">
+    <div class="box">
       <h3 style="margin:0 0 8px;">Pozvěte a vydělávejte</h3>
-      <div style="color:#666;font-size:14px;">
-        Pozvěte přátele a získejte odměnu za každého nového uživatele.
-      </div>
-      <button class="inviteBtn" onclick="invite()">Pozvat přátele</button>
+      <div class="muted">Pozvěte přátele a získejte odměnu za každého nového uživatele.</div>
+      <button class="btn" onclick="invite()">Pozvat přátele</button>
     </div>
   </div>
 
   <!-- INVITE -->
   <div id="invite" class="page">
     <h2 style="padding:15px;margin:0;">Pozvat</h2>
-    <div style="padding:0 15px;color:#555;">
-      Tady bude pozvánkový systém.
+    <div class="box">
+      <div class="muted">Tady je tvůj invite link:</div>
+      <pre id="inviteLink">-</pre>
+      <button class="btn secondary" onclick="copyInvite()">Kopírovat</button>
+      <button class="btn" onclick="addInviteTest()">+1 pozvánka (test)</button>
     </div>
   </div>
 
   <!-- VIDEO -->
   <div id="video" class="page">
     <h2 style="padding:15px;margin:0;">Videa</h2>
-    <div style="padding:0 15px;color:#555;">
-      Tady budou videa.
+    <div class="box">
+      <div class="muted">Test: přidat video view</div>
+      <button class="btn" onclick="addVideoTest()">+1 video (test)</button>
     </div>
   </div>
 
   <!-- WALLET -->
   <div id="wallet" class="page">
     <h2 style="padding:15px;margin:0;">Peněženka</h2>
-    <div style="padding:0 15px;color:#555;">
-      Tady bude peněženka / výběry.
+    <div class="box">
+      <div class="muted">Test: přidat výdělek</div>
+      <button class="btn" onclick="addMoneyTest()">+100 Kč (test)</button>
+      <button class="btn secondary" onclick="resetStats()">Reset (test)</button>
     </div>
   </div>
 
@@ -249,28 +254,32 @@ header{
 </div>
 
 <script>
-/* =============================
-   1) EDGE FUNCTION URL
-   Tvoje funkce se jmenuje hyper-endpoint → proto je tu /hyper-endpoint
-============================= */
+/* ===== CONFIG ===== */
 const EDGE_URL = "https://kwrdcaoxecqfctlcjnbj.functions.supabase.co/hyper-endpoint";
+const SUPABASE_URL = "https://kwrdcaoxecqfctlcjnbj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3cmRjYW94ZWNxZmN0bGNqbmJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNzYsImV4cCI6MjA4NDYzODM3Nn0.IZdO-tEDsMwBmZ020bvBT_IOOrqgo7LwHKOStHcp6eg"; // <-- sem vlož svůj anon key
 
-/* =============================
-   UI helpers
-============================= */
-function setLoading(title, msg, extra) {
-  document.getElementById("loadTitle").innerText = title;
-  document.getElementById("loadMsg").innerText = msg || "";
-  const dbg = document.getElementById("debug");
-  if (extra) {
-    dbg.style.display = "block";
-    dbg.textContent = extra;
-  } else {
-    dbg.style.display = "none";
-    dbg.textContent = "";
-  }
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const tg = window.Telegram?.WebApp;
+
+/* ===== LOADING delay (no blinking) ===== */
+let loadingTimer = null;
+function showLoadingDelayed() {
+  loadingTimer = setTimeout(() => {
+    document.getElementById("loading").style.display = "flex";
+  }, 300);
+}
+function hideLoadingDelayed() {
+  clearTimeout(loadingTimer);
+  loadingTimer = null;
+  document.getElementById("loading").style.display = "none";
 }
 
+/* ===== STATE ===== */
+let currentUser = null; // { telegram_id, ... }
+let stats = null;       // { balance_czk, invite_count, task_count, video_count }
+
+/* ===== UI ===== */
 function go(page) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
   document.getElementById(page).style.display = "block";
@@ -288,24 +297,42 @@ function toggleProfile() {
 }
 function closeProfile(){ document.getElementById("profileMenu").style.display = "none"; }
 
-/* =============================
-   Telegram auto-login
-============================= */
-const tg = window.Telegram?.WebApp;
+function moneyFmt(n){ return "Kč " + (Number(n)||0).toLocaleString("cs-CZ"); }
 
+function render() {
+  const b = stats?.balance_czk ?? 0;
+  const inv = stats?.invite_count ?? 0;
+  const tasks = stats?.task_count ?? 0;
+  const vids = stats?.video_count ?? 0;
+
+  document.getElementById("balanceText").innerText = moneyFmt(b);
+  document.getElementById("statEarn").innerText = (Number(b)||0).toLocaleString("cs-CZ");
+  document.getElementById("statInv").innerText = inv;
+  document.getElementById("statTasks").innerText = tasks;
+  document.getElementById("statVideos").innerText = vids;
+
+  const botUsername = "ROBINVOZDECKYAPP"; // kdybys chtěl pozvánky přes bot link
+  const ref = currentUser?.telegram_id || "0";
+  document.getElementById("inviteLink").textContent =
+    `https://t.me/${botUsername}?start=${ref}`;
+}
+
+/* ===== TELEGRAM LOGIN ===== */
 async function telegramAutoLogin() {
+  showLoadingDelayed();
+
   if (!tg) {
-    setLoading("Chyba", "Telegram WebApp není dostupný.", "Otevři to přes Telegram (Mini App).");
+    hideLoadingDelayed();
+    document.body.innerHTML = "Neotevřeno v Telegramu (Mini App).";
     return;
   }
 
   tg.expand();
 
   const initData = tg.initData || "";
-  setLoading("Načítám…", "Ověřuji Telegram účet", "initData length: " + initData.length);
-
   if (!initData) {
-    setLoading("Chyba", "Chybí initData.", "Tohle znamená, že to není otevřené jako Telegram Mini App.");
+    hideLoadingDelayed();
+    document.body.innerHTML = "Chybí initData – otevři to přes Telegram Mini App.";
     return;
   }
 
@@ -321,42 +348,148 @@ async function telegramAutoLogin() {
     try { data = JSON.parse(text); } catch { data = { ok:false, error:"Non-JSON response", raw:text }; }
 
     if (!res.ok || !data.ok) {
-      const debug =
-        "HTTP: " + res.status + "\n" +
-        "EDGE_URL: " + EDGE_URL + "\n\n" +
-        "error: " + (data?.error || "unknown") + "\n" +
-        "detail: " + (data?.detail || "-") + "\n\n" +
-        "RAW:\n" + (data?.raw || text);
-
-      setLoading("Login fail", "Pošli mi tenhle text:", debug);
+      hideLoadingDelayed();
+      document.body.innerHTML =
+        "<div style='padding:20px;font-family:Arial'>" +
+        "<b>Login fail</b><br><br>" +
+        "HTTP: " + res.status + "<br>" +
+        "Error: " + (data.error || "unknown") + "<br>" +
+        "<pre style='white-space:pre-wrap;background:#111;color:#fff;padding:10px;border-radius:10px;'>" +
+        (data.raw || text) +
+        "</pre></div>";
       return;
     }
 
-    // ✅ Logged in OK
-    const u = data.user;
+    currentUser = data.user;
 
+    // profile
     document.getElementById("profileName").innerText =
-      (u.first_name || "") + (u.username ? " @" + u.username : "");
+      (currentUser.first_name || "") + (currentUser.username ? " @" + currentUser.username : "");
+    document.getElementById("profileId").innerText = currentUser.telegram_id;
+    if (currentUser.photo_url) document.getElementById("avatar").src = currentUser.photo_url;
 
-    document.getElementById("profileId").innerText = u.telegram_id;
-
-    if (u.photo_url) document.getElementById("avatar").src = u.photo_url;
-
-    document.getElementById("loading").style.display = "none";
+    // show app
+    hideLoadingDelayed();
     document.getElementById("app").style.display = "block";
     go("home");
 
+    // load stats from DB
+    await ensureStatsRow();
+    await loadStats();
+
   } catch (e) {
-    setLoading("Network/CORS error", "Nepovedlo se zavolat backend.", String(e));
+    hideLoadingDelayed();
+    document.body.innerHTML = "Network/CORS error: " + String(e);
   }
 }
 
-function invite(){
-  alert("Pozvánky doděláme jako další krok 🙂");
+/* ===== DB (Supabase) ===== */
+
+// ensure row exists
+async function ensureStatsRow() {
+  const telegram_id = currentUser.telegram_id;
+
+  // try select
+  const { data: row, error } = await supa
+    .from("stats")
+    .select("*")
+    .eq("telegram_id", telegram_id)
+    .maybeSingle();
+
+  // if table missing or rls error -> show message
+  if (error && !row) {
+    console.log(error);
+    alert("Chyba DB: " + error.message + "\n\nZkontroluj, že existuje tabulka stats.");
+    return;
+  }
+
+  if (!row) {
+    // create default
+    const { error: insErr } = await supa.from("stats").insert([{
+      telegram_id,
+      balance_czk: 0,
+      invite_count: 0,
+      task_count: 0,
+      video_count: 0
+    }]);
+    if (insErr) alert("Insert stats failed: " + insErr.message);
+  }
 }
 
+// load stats
+async function loadStats() {
+  const telegram_id = currentUser.telegram_id;
+  const { data, error } = await supa
+    .from("stats")
+    .select("*")
+    .eq("telegram_id", telegram_id)
+    .single();
+
+  if (error) {
+    alert("Load stats failed: " + error.message);
+    return;
+  }
+
+  stats = data;
+  render();
+}
+
+// update helper
+async function updateStats(patch) {
+  const telegram_id = currentUser.telegram_id;
+  const { error } = await supa
+    .from("stats")
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq("telegram_id", telegram_id);
+
+  if (error) {
+    alert("Update failed: " + error.message);
+    return false;
+  }
+  await loadStats();
+  return true;
+}
+
+/* ===== ACTIONS ===== */
+function invite() { go("invite"); }
+
+async function copyInvite() {
+  const t = document.getElementById("inviteLink").textContent;
+  try {
+    await navigator.clipboard.writeText(t);
+    alert("Zkopírováno ✅");
+  } catch {
+    alert("Nešlo zkopírovat. Zkopíruj ručně:\n" + t);
+  }
+}
+
+// TEST: +100 Kč
+async function addMoneyTest() {
+  const b = Number(stats?.balance_czk || 0) + 100;
+  await updateStats({ balance_czk: b });
+}
+
+// TEST: +1 pozvánka
+async function addInviteTest() {
+  const v = Number(stats?.invite_count || 0) + 1;
+  await updateStats({ invite_count: v });
+}
+
+// TEST: +1 video
+async function addVideoTest() {
+  const v = Number(stats?.video_count || 0) + 1;
+  await updateStats({ video_count: v });
+}
+
+// TEST: reset
+async function resetStats() {
+  await updateStats({ balance_czk: 0, invite_count: 0, task_count: 0, video_count: 0 });
+}
+
+/* start */
 telegramAutoLogin();
 </script>
 
 </body>
 </html>
+
